@@ -1,7 +1,6 @@
 from collections import Counter
 import regex as re
 
-
 PAT = r"""'(?:[sdmt]|ll|ve|re)| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+"""
 
 
@@ -31,7 +30,7 @@ def byte_pair_encoding(corpus: str, vocab: dict[tuple[bytes], int], num_of_merge
         else:   
             tokens[split_bytes_group] += 1
     print(tokens)
-    for i in range(num_of_merges):
+    for _ in range(num_of_merges):
         counter = Counter()
         # print first key
         for key in tokens.keys():
@@ -42,13 +41,19 @@ def byte_pair_encoding(corpus: str, vocab: dict[tuple[bytes], int], num_of_merge
         vocab[best_pair[0] + best_pair[1]] = curr_vocab_size
         for key in list(tokens.keys()):
             new_key = key
-            for i in range(len(key) - 1):
-                if key[i:i+2] == best_pair:
-                    new_key = key[:i] + (best_pair[0] + best_pair[1],) +  key[i+2:]
-                if new_key not in tokens:
-                    tokens[new_key] = tokens[key]
-                    del tokens[key]
-    print(tokens)
+            i = 0
+            while i < len(new_key) - 1:
+                if new_key[i:i+2] == best_pair:
+                    # print("Initial part of new key: ", new_key[:i])
+                    # print("Best pair: ", best_pair)
+                    # print("Final part of new key: ", new_key[i+2:])
+                    new_key = new_key[:i] + (best_pair[0] + best_pair[1],) + new_key[i+2:]
+                else:
+                    i += 1
+            if new_key not in tokens:
+                tokens[new_key] = tokens[key]
+                del tokens[key]
+        print(tokens)
     print(vocab)
 
     
@@ -56,4 +61,4 @@ def byte_pair_encoding(corpus: str, vocab: dict[tuple[bytes], int], num_of_merge
 vocab = {}
 for i in range(256):
     vocab[bytes([i])] = i
-byte_pair_encoding("low low low low low lower lower widest widest widest newest newest newest newest newest newest", vocab, 2)
+byte_pair_encoding("low low low low low lower lower widest widestest widest newest newest newest newest newest newest", vocab, 2)
